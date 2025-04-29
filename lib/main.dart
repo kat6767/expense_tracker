@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 void main() {
@@ -24,121 +23,183 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                children: [
-
-                  // Ícono "Finance"
-                  Container(
-                    height: 80,
-                    width: 80,
-                    color: Colors.black,
-                    child: const Center(
-                      child: Icon(Icons.show_chart, color: Colors.greenAccent, size: 40),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'FINANCE',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
-
-              // Caja con fields para Username y Password 
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  children: [
-                    // Username Field
-                    TextField(
-                      decoration: InputDecoration(
-                        hintText: 'example@example.com',
-                        labelText: 'Username Or Email',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        filled: true,
-                        fillColor: Colors.grey[200],
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Parte de arriba: el logo
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              width: 110,
+                              height: 110,
+                              child: Image.asset("assets/logo_finance.png"),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
 
-                    // Password field 
-                    TextField(
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
+                      // Parte de abajo: caja verde para los demás elementos 
+                      Expanded(
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(50),
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(232, 237, 234, 1.0),
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(50),
+                              topRight: Radius.circular(50),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
 
-                    // Caja para el botón Log In 
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) => const HomeScreen()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                              // Username label
+                              const Text(
+                                "Username Or Email",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+
+                              // Username Field
+                              TextField(
+                                decoration: InputDecoration(
+                                  labelText: 'example@example.com',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(50),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 40),
+                                  filled: true,
+                                  fillColor: Color.fromRGBO(207, 218, 226, 1.0),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Password label
+                              const Text(
+                                "Password",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+
+                              // Password Field
+                              TextField(
+                                obscureText: true,
+                                decoration: InputDecoration(
+                                  labelText: 'Password',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(50),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 40),
+                                  filled: true,
+                                  fillColor: Color.fromRGBO(207, 218, 226, 1.0),
+                                ),
+                              ),
+                              const SizedBox(height: 30),
+
+                              Center(
+                                child: Column(
+                                  children: [
+
+                                    //Botón log in 
+                                    SizedBox(
+                                      width: 200,
+                                      height: 50,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) => const HomeScreen(),
+                                            ),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Color.fromRGBO(2, 48, 36, 1.0),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(50),
+                                          ),
+                                        ),
+
+                                        // Texto para Log In
+                                        child: const Text(
+                                          'Log In',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    // Forgot Password 
+                                    TextButton(
+                                      onPressed: () {},
+                                      child: const Text(
+                                        'Forgot Password?',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ),
+
+                                    // Sign Up 
+                                    OutlinedButton(
+                                      onPressed: () {},
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(color: Colors.transparent),
+                                        backgroundColor: Color.fromRGBO(232, 237, 234, 1.0),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Sign Up',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        child: const Text('Log In'),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Botón "Forgot Password?"
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        'Forgot Password?',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Botón "Sign Up"
-                    OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.transparent),
-                        backgroundColor: Colors.grey[300],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text('Sign Up', style: TextStyle(color: Colors.black)),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
   }
 }
 
-// Página de inicio de sesión
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
