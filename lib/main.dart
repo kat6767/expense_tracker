@@ -2,12 +2,11 @@ import 'package:expense_tracker/providers/gasto_providers.dart';
 import 'package:expense_tracker/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// import 'screens/login_screen.dart';
 
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (_) => GastosProvider(),  // Notificador global de cambios para los gastos 
+      create: (_) => GastosProvider()..cargarGastos(),  // Notificador global de cambios para los gastos y carga de la bd local
       child: MyApp(),
       ),
     );
@@ -20,7 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const HomeScreen(), // Uso de home_screen para pruebas
+      home: HomeScreen(), // Uso de home_screen para pruebas
       debugShowCheckedModeBanner: false,
     );
   }
