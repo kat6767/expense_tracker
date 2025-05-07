@@ -1,103 +1,11 @@
-/*import 'package:expense_tracker/db/database_helper.dart';
-import 'package:expense_tracker/models/gasto.dart';
-import 'package:flutter/material.dart';
-import '/screens/add_gasto.dart';
-
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  late Future<List<Gasto>> _futureGastos;
-
-//actualización continua de los datos mostrados en pantalla
-  @override
-  void initState() {
-    super.initState();
-    _cargarGastos();
-  }
-
-// Función de obtención de datos de la db
-  void _cargarGastos() {
-    _futureGastos = DatabaseHelper().obtenerGastosDB();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Gastos personales")),
-      // Lógica del widget
-      body: FutureBuilder<List<Gasto>>(
-        future: _futureGastos,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return Center(child: CircularProgressIndicator());
-
-          if (snapshot.hasError)
-            return Center(child: Text("Error: ${snapshot.error}"));
-
-          final gastos = snapshot.data ?? [];
-
-          if (gastos.isEmpty)
-            return Center(child: Text("No hay gastos registrados."));
-
-
-          //columna que contiene la lista de datos y espacio para otros botones o elementos
-          return Column( 
-            children:
-           [
-              ElevatedButton(onPressed: () async {
-                // Llamar al método para borrar todos los gastos
-                 await DatabaseHelper().borrarTodosLosGastos();
-
-                 // Volver a cargar los datos de la base de datos
-                  setState(() {
-                  _cargarGastos();
-                 });
-                },
-  child: Text("Borrar datos de la bd (PRUEBAS)"),),
-            Expanded(
-              child: 
-                ListView.builder(
-               itemCount: gastos.length,
-                 itemBuilder: (context, index) {
-                    final gasto = gastos[index];
-                    return ListTile(
-                      title: Text(gasto.categoria),
-                      subtitle: Text("Monto: \$${gasto.monto.toStringAsFixed(2)} \nDescripción: ${gasto.descripcion} \nFecha: ${gasto.fecha}"),
-                        );
-                      },
-                   ), 
-              )
-           ]);
-        },
-      ),
-
-    // Botón agregar gasto
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => AgregarGastoPage()),
-          );
-          setState(() {
-            _cargarGastos(); // ← vuelve a cargar los datos cuando regresas
-          });
-        },
-        child: Icon(Icons.add),
-      ),
-    );
-  }
-}
-*/
-
 import 'package:expense_tracker/db/database_helper.dart';
 import 'package:expense_tracker/models/gasto.dart';
 import 'package:flutter/material.dart';
 import '/screens/add_gasto.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -129,31 +37,30 @@ class _HomeScreenState extends State<HomeScreen> {
       body: FutureBuilder<List<Gasto>>(
         future: _futureGastos,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
+          if (snapshot.connectionState == ConnectionState.waiting) 
             return Center(child: CircularProgressIndicator());
+          
 
-          if (snapshot.hasError)
+          if (snapshot.hasError) 
             return Center(child: Text("Error: ${snapshot.error}"));
+          
 
           final gastos = snapshot.data ?? [];
 
-          if (gastos.isEmpty)
-            return Center(child: Text("No hay gastos registrados."));
+          final sumaTotalGastos = gastos.fold<double>(
+           0.0,
+          (prev, gasto) => prev + gasto.monto,
+          );
+
+          //if (gastos.isEmpty) 
+            //return Center(child: Text("No hay gastos registrados."));
+          
 
           //columna que contiene la lista de datos y espacio para otros botones o elementos
           return Column(
             children: [
-              /*ElevatedButton(onPressed: () async {
-                // Llamar al método para borrar todos los gastos
-                 await DatabaseHelper().borrarTodosLosGastos();
-
-                 // Volver a cargar los datos de la base de datos
-                  setState(() {
-                  _cargarGastos();
-                 });
-                },
-  child: Text("Borrar datos de la bd (PRUEBAS)"),),*/
-              Container(
+  
+              SizedBox(
                 //primer contendor con aproxx 30% de la altura de la pantalla
                 height: screenHeight * 0.308,
 
@@ -178,7 +85,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    Container(
+
+                  /// ESPACIO PARA BOTONES DE PRUEBA AQUÍ ///
+                  /// 
+                 
+
+                    SizedBox(
                       //segundo contenedor aislado
                       height: 0.208 * screenHeight,
 
@@ -197,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               //fila para logo y Gastos Totales
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Container(
+                                SizedBox(
                                   //contendor para el logo
                                   width: 0.25 * screenWidht,
                                   child: const Center(
@@ -215,13 +127,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                   endIndent: 0.018 * screenHeight,
                                   width: 0.02 * screenWidht,
                                 ),
-
-                                Container(
+                                SizedBox(
                                   width: 0.58 * screenWidht,
+
+                  
+                                  // Columna para la caja de suma total de gastos y el listado de gastos
                                   child: Column(
-                                    //colimna para
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
+                                      //Texto para la caja de suma total de gastos
                                       const Text(
                                         'Gastos Totales',
                                         style: TextStyle(
@@ -234,8 +148,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                           fontSize: 12,
                                         ),
                                       ),
-                                      const Text(
-                                        r'-$1,1500.00',
+
+                                      //Texto para la suma total de datos
+                                       Text(
+                                        '${sumaTotalGastos.toString()}',
                                         style: TextStyle(
                                           color: Color.fromRGBO(
                                             242,
@@ -256,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ],
-                ),
+                )
                 //final del primer contenedor
               ),
 
@@ -274,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // para dividir segunda columna en 3
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
+                    SizedBox(
                       //contendor de Fecha y Monto
                       height: 0.15 * screenHeight,
                       width: screenWidht,
@@ -295,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Container(
+                                SizedBox(
                                   height: 0.07 * screenHeight,
                                   width: 0.5 * screenWidht,
                                   child: Column(
@@ -348,7 +264,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-                    Container(
+
+                    SizedBox(
                       // para la lista de gastos e ingresos
                       height: 0.45 * screenHeight,
 
@@ -390,7 +307,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               padding: EdgeInsets.only(
                                 top: 5,
                               ), // espaciado entre título y subtítulo
-                              child: Text('${gasto.fecha}'),
+                              child: Text(gasto.fecha),
                             ),
 
                             trailing: Text(
@@ -400,11 +317,42 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fontSize: 14,
                               ),
                             ),
+                            
+
+                            // Opción de borrado 
+                            onLongPress: () async{
+                              final confirm = await showDialog<bool>(
+                                context: context, 
+                                builder: (context) => AlertDialog(
+                                  title: Text('Eliminar Gasto'), 
+                                  content: Text('¿Estás seguro de que quieres eliminar este gasto?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context, false), 
+                                      child: Text('Cancelar'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, true),
+                                        child: Text('Eliminar'),
+                                      )
+                                  ]
+                                )
+                              );
+
+                              if (confirm == true){
+                                await DatabaseHelper().eliminarGastoDB(gasto.id!);
+                                setState(() {
+                                  _cargarGastos();
+                                });
+                              }
+
+
+                            },
                           );
                         },
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       //para barra de opciones o boton de agregar
                       height: 0.092 * screenHeight,
                       width: screenWidht,
@@ -418,28 +366,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
 
                             child:
-                            /*
-                        Container(
-                          
-                          
-
-
-
-                          width: 0.08*screenHeight,
-                          height: 0.05*screenHeight,
-                          decoration: BoxDecoration(
-                            color: Color.fromRGBO(2,48,36,1),
-                            borderRadius: BorderRadius.circular(20)
-                          ),
-                          child:Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(Icons.add, color: const Color.fromARGB(255, 255, 255, 255), size: 0.04*screenHeight)
-                            ],
-                          ),
-                          
-                        ),*/
                             GestureDetector(
                               onTap: () async {
                                 await Navigator.push(
@@ -479,43 +405,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-
-              /*
-            Expanded(
-              child: 
-                ListView.builder(
-               itemCount: gastos.length,
-                 itemBuilder: (context, index) {
-                    final gasto = gastos[index];
-                    return ListTile(
-                      title: Text(gasto.categoria),
-                      subtitle: Text("Monto: \$${gasto.monto.toStringAsFixed(2)} \nDescripción: ${gasto.descripcion} \nFecha: ${gasto.fecha}"),
-                        );
-                      },
-                   ), 
-              )
-
-
-*/
             ],
           );
         },
       ),
-
-      // Botón agregar gasto
-      /*floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => AgregarGastoPage()),
-          );
-          setState(() {
-            _cargarGastos(); // ← vuelve a cargar los datos cuando regresas
-          });
-        },
-        child: Icon(Icons.add),
-      ),*/
     );
   }
 }
-//>>>>>>> Stashed changes
+

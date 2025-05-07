@@ -12,14 +12,14 @@ class DatabaseHelper {
   DatabaseHelper._internal();
 
 // Función para poder obtener la tabla / leerla
-  Future<Database> get database async {
+  static Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
 
 // función para la inicialización (creación) de la tabla 
-  Future<Database> _initDatabase() async {
+  static Future<Database> _initDatabase() async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'tabla_gastos.db');
 
@@ -31,7 +31,7 @@ class DatabaseHelper {
   }
 
 // función onCreate para la creación de la tabla, contiene el query a ejecutar
-  Future _onCreate(Database db, int version) async {
+  static Future _onCreate(Database db, int version) async {
     await db.execute('''
       CREATE TABLE tabla_gastos(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -77,6 +77,17 @@ class DatabaseHelper {
     );
   }
 
+  // Función de carga de categorías
+  static Future<List<String>> obtenerCategorias() async{
+    final db = await database;
+
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+      'SELECT DISTINCT categoria FROM tabla_gastos WHERE categoria IS NOT NULL'
+    );
+
+    return result.map((fila) => fila['categoria'] as String).toList();
+  }
+
   // Función para borrar datos de prueba durante el desarrollo. 
   ///
   ///NOTA AL DESARROLLADOR: ELIMINAR FUNCIÓN AL COMPLETAR LA APP
@@ -86,4 +97,5 @@ class DatabaseHelper {
   await db.delete('tabla_gastos');
 }
 }
+
 

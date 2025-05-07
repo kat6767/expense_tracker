@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '/db/database_helper.dart';
 import '/models/gasto.dart';
 
 class AgregarGastoPage extends StatefulWidget {
+  const AgregarGastoPage({super.key});
+
   @override
   _AgregarGastoPageState createState() => _AgregarGastoPageState();
+  
 }
 
 // Estado de la pantalla agregar Gasto: Lógica e interacción con la base de datos
@@ -15,6 +19,26 @@ class _AgregarGastoPageState extends State<AgregarGastoPage> {
   final _fechaController = TextEditingController();
   final _descripcionController = TextEditingController();
 
+  // Función para obtener la fecha con un datePicker (calendario )
+   Future<void> _seleccionarFecha(BuildContext context) async {
+    final DateTime? fechaSeleccionada = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (fechaSeleccionada != null) {
+    setState(() {
+      _fechaController.text =
+          '${fechaSeleccionada.day.toString().padLeft(2, '0')}/${fechaSeleccionada.month.toString().padLeft(2, '0')}/${fechaSeleccionada.year}';
+    });
+  }
+  
+   }
+
+
+
   // destrucción de los controladores del form luego de su uso
   @override
   void dispose() {
@@ -24,7 +48,7 @@ class _AgregarGastoPageState extends State<AgregarGastoPage> {
     _descripcionController.dispose();
     super.dispose();
   }
-
+  
   // función con la que se obtienen los datos ingresados y se guardan en la base de datos.
   Future<void> _guardarGasto() async {
     if (_formKey.currentState!.validate()) {
@@ -40,6 +64,7 @@ class _AgregarGastoPageState extends State<AgregarGastoPage> {
         fecha: fechaIngresada,
         descripcion: descripcionIngresada,
       );
+
       await DatabaseHelper().insertarGastoDB(
         gastoIngresado,
       ); // adición de los datos a la bd
@@ -52,7 +77,7 @@ class _AgregarGastoPageState extends State<AgregarGastoPage> {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidht = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: Color.fromRGBO(232, 237, 234, 1),
@@ -88,263 +113,239 @@ class _AgregarGastoPageState extends State<AgregarGastoPage> {
             ),
           ),
           height: 0.9 * screenHeight,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //Elemento de Fecha
-              children: [
-                Padding(//Primer elemento
-                  padding: EdgeInsets.fromLTRB(35, 60,35, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(15, 0, 0, 5),
-                        child: Text(
-                          'Fecha',
-                          style: TextStyle(
-                            color: Color.fromRGBO(9, 48, 48, 1),
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
+
+          //Formulario para ingresar gasto
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //Elemento de Fecha
+                children: [
+                  Padding(//Primer elemento
+
+                    padding: EdgeInsets.fromLTRB(35, 60,35, 15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(15, 0, 0, 5),
+                          child: Text(
+                            'Fecha',
+                            style: TextStyle(
+                              color: Color.fromRGBO(9, 48, 48, 1),
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          
-                          //labelText: 'Ingresar Fecha',
-                          //labelStyle: TextStyle(color: Color.fromRGBO(123, 150, 148, 1)),
-                          hintText: 'Ingresar Fecha',
-                          filled: true,
-                          fillColor: Color.fromRGBO(232, 237, 234, 1),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 0,
+                        TextFormField(
+                          decoration: InputDecoration(
+                            
+                            //labelText: 'Ingresar Fecha',
+                            //labelStyle: TextStyle(color: Color.fromRGBO(123, 150, 148, 1)),
+                            hintText: 'Ingresar Fecha',
+                            filled: true,
+                            suffixIcon: Icon(Icons.calendar_today),
+                            fillColor: Color.fromRGBO(232, 237, 234, 1),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 0,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
+                            ),
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide.none,
-                          ),
+                          style: TextStyle(color: Color.fromRGBO(9, 48, 48, 1)),
+                          controller: _fechaController,
+                          readOnly: true,
+                          onTap: () => _seleccionarFecha(context),
+                          validator:(value) {
+                               if (value == null || value.isEmpty){
+                                 return 'Por favor selecciona una fecha';   
+                            }
+                            return null;
+                          }
+            
+                    
                         ),
-                        style: TextStyle(color: Color.fromRGBO(9, 48, 48, 1)),
-                        controller: _fechaController,
-                        validator:(value) =>
-                          value == null || value.isEmpty
-                              ? 'Ingresa la fecha'
-                              : null, 
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+            
+                  //Elemento de Categoria
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(35, 15, 35, 15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(15, 0, 0, 5),
+                          child: Text(
+                            'Categoria',
+                            style: TextStyle(
+                              color: Color.fromRGBO(9, 48, 48, 1),
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
 
-                //Elemento de Categoria
-                Padding(
-                  padding: EdgeInsets.fromLTRB(35, 0, 35, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(15, 0, 0, 5),
-                        child: Text(
-                          'Categoria',
-                          style: TextStyle(
-                            color: Color.fromRGBO(9, 48, 48, 1),
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
+
+                        TextFormField(
+                          decoration: InputDecoration(
+                            
+                            //labelText: 'Ingresar Fecha',
+                            //labelStyle: TextStyle(color: Color.fromRGBO(123, 150, 148, 1)),
+                            hintText: 'Ingresar categoria',
+                            filled: true,
+                            fillColor: Color.fromRGBO(232, 237, 234, 1),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 0,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
+                            ),
                           ),
+                          style: TextStyle(color: Color.fromRGBO(9, 48, 48, 1)),
+                          controller: _categoriaController,
+                          validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Ingresa una categoría'
+                                : null,
                         ),
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          
-                          //labelText: 'Ingresar Fecha',
-                          //labelStyle: TextStyle(color: Color.fromRGBO(123, 150, 148, 1)),
-                          hintText: 'Ingresar categoria',
-                          filled: true,
-                          fillColor: Color.fromRGBO(232, 237, 234, 1),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 0,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        style: TextStyle(color: Color.fromRGBO(9, 48, 48, 1)),
-                        controller: _categoriaController,
-                        validator:
-                      (value) =>
-                          value == null || value.isEmpty
-                              ? 'Ingresa una categoría'
-                              : null,
-                      ),
-                      
-                    ],
+                        
+                      ],
+                    ),
                   ),
-                ),
-                //Elemento Monto
-                      Padding(
-                  padding: EdgeInsets.fromLTRB(35, 0, 35, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(15, 0, 0, 5),
-                        child: Text(
-                          'Monto',
-                          style: TextStyle(
-                            color: Color.fromRGBO(9, 48, 48, 1),
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
+                  //Elemento Monto
+                        Padding(
+                    padding: EdgeInsets.fromLTRB(35, 15, 35, 15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(15, 0, 0, 5),
+                          child: Text(
+                            'Monto',
+                            style: TextStyle(
+                              color: Color.fromRGBO(9, 48, 48, 1),
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          
-                          //labelText: 'Ingresar Fecha',
-                          //labelStyle: TextStyle(color: Color.fromRGBO(123, 150, 148, 1)),
-                          hintText: 'Insertar Monto',
-                          filled: true,
-                          fillColor: Color.fromRGBO(232, 237, 234, 1),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 0,
+                        TextFormField(
+                          decoration: InputDecoration(
+                            
+                            //labelText: 'Ingresar Fecha',
+                            //labelStyle: TextStyle(color: Color.fromRGBO(123, 150, 148, 1)),
+                            hintText: 'Insertar Monto',
+                            filled: true,
+                            fillColor: Color.fromRGBO(232, 237, 234, 1),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 0,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
+                            ),
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide.none,
-                          ),
+                          style: TextStyle(color: Color.fromRGBO(9, 48, 48, 1)),
+                          controller: _montoController,
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                          ],
+                          validator:(value) {
+                            if (value == null || value.trim().isEmpty) {
+                                return 'Ingresa un monto válido';
+                              }
+                              final parsed = double.tryParse(value); 
+                              if (parsed == null){
+                                return 'Debe ser un número decimal';
+                              }
+                              return null;
+                          }
                         ),
-                        style: TextStyle(color: Color.fromRGBO(9, 48, 48, 1)),
-                        controller: _montoController,
-                        validator:(value) =>
-                          value == null || value.isEmpty
-                              ? 'Ingresa un monto válido'
-                              : null,
-                      ),
-                      //Elemento Descripcion
-                      
-                    ],
+
+
+                        //Elemento Descripcion
+                      ],
+                    ),
                   ),
-                ),
-                //Elemento DESCRIPCION
-                Padding(
-                  padding: EdgeInsets.fromLTRB(35, 0, 35, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(15, 0, 0, 5),
-                        child: Text(
-                          'Descripción',
-                          style: TextStyle(
-                            color: Color.fromRGBO(9, 48, 48, 1),
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
+                  //Elemento DESCRIPCION
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(35, 20, 35, 15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(15, 0, 0, 5),
+                          child: Text(
+                            'Descripción',
+                            style: TextStyle(
+                              color: Color.fromRGBO(9, 48, 48, 1),
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          
-                          //labelText: 'Ingresar Fecha',
-                          //labelStyle: TextStyle(color: Color.fromRGBO(123, 150, 148, 1)),
-                          hintText: 'Ingrese una descripción',
-                          filled: true,
-                          fillColor: Color.fromRGBO(232, 237, 234, 1),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 0,
+                        TextFormField(
+                          decoration: InputDecoration(
+                            
+                            //labelText: 'Ingresar Fecha',
+                            //labelStyle: TextStyle(color: Color.fromRGBO(123, 150, 148, 1)),
+                            hintText: 'Ingrese una descripción',
+                            filled: true,
+                            fillColor: Color.fromRGBO(232, 237, 234, 1),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 0,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
+                            ),
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide.none,
-                          ),
+                          style: TextStyle(color: Color.fromRGBO(9, 48, 48, 1)),
+                          controller: _descripcionController,
+                          validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Ingresa una descripción'
+                                : null,
                         ),
-                        style: TextStyle(color: Color.fromRGBO(9, 48, 48, 1)),
-                        controller: _descripcionController,
-                        validator:
-                      (value) =>
-                          value == null || value.isEmpty
-                              ? 'Ingresa una descripción'
-                              : null,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                
-                /*
-                //TextBox categoria
-                TextFormField(
-                  controller: _categoriaController,
-                  decoration: InputDecoration(labelText: 'Categoria'),
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty
-                              ? 'Ingresa una categoría'
-                              : null,
-                ),
-                //espacio
-                SizedBox(height: 20),
-
-                //texbox monto
-                TextFormField(
-                  controller: _montoController,
-                  decoration: InputDecoration(labelText: 'Monto'),
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty
-                              ? 'Ingresa un monto válido'
-                              : null,
-                ),
-                SizedBox(height: 20),
-
-                //textbox fecha
-                /*TextFormField(
-                  controller: _fechaController,
-                  decoration: InputDecoration(labelText: 'Fecha DD, MM, AA'),
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty
-                              ? 'Ingresa la fecha'
-                              : null,
-                ),*/
-                SizedBox(height: 20),
-
-                TextFormField(
-                  controller: _descripcionController,
-                  decoration: InputDecoration(labelText: 'Descripción'),
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty
-                              ? 'Ingresa una descripción'
-                              : null,
-                ),*/
-                
-
-                //Botón guardarGasto
-                Padding(padding: EdgeInsets.fromLTRB(0,30,0,60),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromRGBO(2, 48, 36,1),
-                    elevation: 0
-
-
+                  Padding(padding: EdgeInsets.fromLTRB(0,60,0,60),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromRGBO(2, 48, 36,1),
+                      elevation: 0
+            
+            
+                    ),
+                    onPressed: _guardarGasto,
+                    child: Text('Guardar gasto', style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1) ),),
                   ),
-                  onPressed: _guardarGasto,
-                  child: Text('Guardar gasto', style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1) ),),
-                ),
-                
-                )
-                
-              ],
+                  
+                  )
+                  
+                ],
+              ),
             ),
+            )
           ),
+          ) 
         ),
-      ),
-    );
+      );
   }
 }
