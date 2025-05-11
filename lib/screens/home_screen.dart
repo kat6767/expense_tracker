@@ -1,5 +1,6 @@
 import 'package:expense_tracker/db/database_helper.dart';
 import 'package:expense_tracker/models/gasto.dart';
+import 'package:expense_tracker/screens/edit_gasto.dart';
 import 'package:flutter/material.dart';
 import '/screens/add_gasto.dart';
 
@@ -12,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Gasto>> _futureGastos;
+  Set<int> _expandedIndices = {};
 
   //actualización continua de los datos mostrados en pantalla
   @override
@@ -37,29 +39,25 @@ class _HomeScreenState extends State<HomeScreen> {
       body: FutureBuilder<List<Gasto>>(
         future: _futureGastos,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) 
+          if (snapshot.connectionState == ConnectionState.waiting)
             return Center(child: CircularProgressIndicator());
-          
 
-          if (snapshot.hasError) 
+          if (snapshot.hasError)
             return Center(child: Text("Error: ${snapshot.error}"));
-          
 
           final gastos = snapshot.data ?? [];
 
           final sumaTotalGastos = gastos.fold<double>(
-           0.0,
-          (prev, gasto) => prev + gasto.monto,
+            0.0,
+            (prev, gasto) => prev + gasto.monto,
           );
 
-          //if (gastos.isEmpty) 
-            //return Center(child: Text("No hay gastos registrados."));
-          
+          //if (gastos.isEmpty)
+          //return Center(child: Text("No hay gastos registrados."));
 
           //columna que contiene la lista de datos y espacio para otros botones o elementos
           return Column(
             children: [
-  
               SizedBox(
                 //primer contendor con aproxx 30% de la altura de la pantalla
                 height: screenHeight * 0.308,
@@ -86,10 +84,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
 
-                  /// ESPACIO PARA BOTONES DE PRUEBA AQUÍ ///
-                  /// 
-                 
-
+                    /// ESPACIO PARA BOTONES DE PRUEBA AQUÍ ///
+                    ///
                     SizedBox(
                       //segundo contenedor aislado
                       height: 0.208 * screenHeight,
@@ -130,7 +126,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 SizedBox(
                                   width: 0.58 * screenWidht,
 
-                  
                                   // Columna para la caja de suma total de gastos y el listado de gastos
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -139,18 +134,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       const Text(
                                         'Gastos Totales',
                                         style: TextStyle(
-                                          color: Color.fromRGBO(
-                                            242,
-                                            247,
-                                            248,
-                                            1,
-                                          ),
+                                          color: Color.fromRGBO(242, 247, 248, 1,),
                                           fontSize: 12,
                                         ),
                                       ),
 
                                       //Texto para la suma total de datos
-                                       Text(
+                                      Text(
                                         '${sumaTotalGastos.toString()}',
                                         style: TextStyle(
                                           color: Color.fromRGBO(
@@ -172,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ],
-                )
+                ),
                 //final del primer contenedor
               ),
 
@@ -181,10 +171,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: screenHeight * 0.692,
                 decoration: BoxDecoration(
                   color: Color.fromRGBO(241, 255, 243, 1),
-                  borderRadius:  BorderRadius.only(
-              topLeft: Radius.circular(50),
-              topRight: Radius.circular(50),
-            ),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
                 ),
                 child: Column(
                   // para dividir segunda columna en 3
@@ -275,85 +265,171 @@ class _HomeScreenState extends State<HomeScreen> {
                         reverse: true,
                         itemBuilder: (context, index) {
                           final gasto = gastos[index];
-                          return ListTile(
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 25,
-                              vertical: 0,
-                            ),
-                            leading: Container(
-                              //para el icono
-                              decoration: BoxDecoration(
-                                color: Color.fromRGBO(2, 48, 36, 1),
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              width: 0.07 * screenHeight,
-                              child: Icon(
-                                Icons.show_chart,
-                                color: Colors.greenAccent,
-                                size: 0.07 * screenHeight,
-                              ),
-                            ),
 
-                            title: Text(
-                              gasto.categoria,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
+                          /// LISTA DE GASTOS 
+                          return Column(
+                            children: [
+                              ListTile(
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 25,
+                                  vertical: 0,
+                                ),
+                                leading: Container(
+                                  decoration: BoxDecoration(
+                                    color: Color.fromRGBO(2, 48, 36, 1),
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  width: 0.07 * screenHeight,
+                                  child: Icon(
+                                    Icons.show_chart,
+                                    color: Colors.greenAccent,
+                                    size: 0.07 * screenHeight,
+                                  ),
+                                ),
+                                title: Text(
+                                  gasto.categoria,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                subtitle: Padding(
+                                  padding: EdgeInsets.only(top: 5),
+                                  child: Text(gasto.fecha),
+                                ),
+                                trailing: Text(
+                                  "-\$${gasto.monto.toStringAsFixed(2)}",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
 
-                            //\nDescripción: ${gasto.descripcion}   Codigo para acceder a descripcion
-                            subtitle: Padding(
-                              padding: EdgeInsets.only(
-                                top: 5,
-                              ), // espaciado entre título y subtítulo
-                              child: Text(gasto.fecha),
-                            ),
+                                /// DETECCIÓN DE GESTO "TAP" PARA EXPANDIR / COLAPSAR LA LISTA
+                                onTap: () {
+                                  setState(() {
+                                    if (_expandedIndices.contains(index)) {
+                                      _expandedIndices.remove(index);
+                                    } else {
+                                      _expandedIndices.add(index);
+                                    }
+                                  });
+                                },
 
-                            trailing: Text(
-                              "-\$${gasto.monto.toStringAsFixed(2)}",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                            
+                                /// DETECCIÓN DE GESTO "LONGPRESS" PARA MOSTRAR OPCIONES DE ELIMINACIÓN/EDICIÓN DE GASTOS
+                                onLongPress: () async {                            
+                                  final result = await showDialog<String>(
+                                    context: context,
+                                    builder:
+                                        (context) => SimpleDialog(
+                                          title: Text('Acciones'),
+                                          children: [
+                                            SimpleDialogOption(
+                                              child: Text('Editar'),
+                                              onPressed:
+                                                  () => Navigator.pop(
+                                                    context,
+                                                    'editar',
+                                                  ),
+                                            ),
 
-                            // Opción de borrado 
-                            onLongPress: () async{
-                              final confirm = await showDialog<bool>(
-                                context: context, 
-                                builder: (context) => AlertDialog(
-                                  title: Text('Eliminar Gasto'), 
-                                  content: Text('¿Estás seguro de que quieres eliminar este gasto?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context, false), 
-                                      child: Text('Cancelar'),
+                                            /// DIALOGO DE ELIMINACIÓN AL PRESIONAR LA OPCIÓN DE ELIMINAR
+                                            SimpleDialogOption(
+                                              child: Text('Eliminar'),
+                                              onPressed: () async {
+                                                Navigator.pop(context);
+                                                final confirm = await showDialog<bool>(
+                                                  context: context,
+                                                  builder:
+                                                      (context) => AlertDialog(
+                                                        title: Text('Eliminar Gasto',),
+                                                        content: Text('¿Estás seguro de que quieres eliminar este gasto?',),
+                                                        actions: [
+                                                          TextButton(
+                                                            onPressed:() =>
+                                                                    Navigator.pop(context, false,),
+                                                            child: Text(
+                                                              'Cancelar',
+                                                            ),
+                                                          ),
+                                                          TextButton(
+                                                            onPressed: () =>Navigator.pop(context, true, ),
+                                                            child: Text(
+                                                              'Eliminar',
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                );
+
+                                                if (confirm == true) {
+                                                  await DatabaseHelper()
+                                                      .eliminarGastoDB(
+                                                        gasto.id!,
+                                                      );
+                                                  setState(() {
+                                                    _cargarGastos();
+                                                  });
+                                                }
+                                              },
+                                            ),
+                                            SimpleDialogOption(
+                                              child: Text('Cancelar'),
+                                              onPressed:
+                                                  () => Navigator.pop(
+                                                    context,
+                                                    null,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+                                  );
+
+                                  /// LÓGICA DE NAVEGACIÓN AL SELECCIONAR LA OPCIÓN "EDITAR"                        
+                                  if (result == 'editar') {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (_) =>
+                                                EditarGastoPage(gasto: gasto),
                                       ),
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context, true),
-                                        child: Text('Eliminar'),
-                                      )
-                                  ]
-                                )
-                              );
-
-                              if (confirm == true){
-                                await DatabaseHelper().eliminarGastoDB(gasto.id!);
-                                setState(() {
-                                  _cargarGastos();
-                                });
-                              }
+                                    ).then((_) {
+                                      setState(() {
+                                        _cargarGastos();
+                                      });
+                                    });
+                                  }
+                                },
+                              ),
 
 
-                            },
+                              /// LÓGICA DE EXPANSIÓN PARA MOSTRAR LA DESCRIPCIÓN
+                              if (_expandedIndices.contains(index))
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 25.0,
+                                    vertical: 5,
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "Descripción: ${gasto.descripcion}",
+                                      style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
                           );
                         },
                       ),
                     ),
+
+                    /// BOTÓN PARA AGREGAR GASTOS 
                     SizedBox(
-                      //para barra de opciones o boton de agregar
                       height: 0.092 * screenHeight,
                       width: screenWidht,
                       child: Column(
@@ -365,8 +441,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Padding(
                             padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
 
-                            child:
-                            GestureDetector(
+                            child: GestureDetector(
                               onTap: () async {
                                 await Navigator.push(
                                   context,
@@ -412,4 +487,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-

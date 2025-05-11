@@ -2,6 +2,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/gasto.dart';
+import 'dart:io';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -95,6 +96,24 @@ class DatabaseHelper {
   Future<void> borrarTodosLosGastos() async {
   final db = await database;
   await db.delete('tabla_gastos');
+}
+
+//elimina el archivo completamente
+Future<void> eliminarBaseDeDatos() async {
+  final dbPath = await getDatabasesPath();
+  final path = join(dbPath, 'tabla_gastos.db');
+
+  // Cierra la base de datos si está abierta
+  if (_database != null) {
+    await _database!.close();
+    _database = null;
+  }
+
+  // Elimina el archivo de la base de datos
+  final dbFile = File(path);
+  if (await dbFile.exists()) {
+    await dbFile.delete();
+  }
 }
 }
 

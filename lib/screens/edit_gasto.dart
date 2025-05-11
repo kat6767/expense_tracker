@@ -3,16 +3,18 @@ import 'package:flutter/services.dart';
 import '/db/database_helper.dart';
 import '/models/gasto.dart';
 
-class AgregarGastoPage extends StatefulWidget {
-  const AgregarGastoPage({super.key});
+class EditarGastoPage extends StatefulWidget {
+  final Gasto gasto; // definimos que se necesita esta información guardada en esa variable para crear el widget
+
+  const EditarGastoPage({super.key, required this.gasto}); //builder donde se requiere dicha info
 
   @override
-  _AgregarGastoPageState createState() => _AgregarGastoPageState();
+  _EditarGastoPageState createState() => _EditarGastoPageState();
   
 }
 
 // Estado de la pantalla agregar Gasto: Lógica e interacción con la base de datos
-class _AgregarGastoPageState extends State<AgregarGastoPage> {
+class _EditarGastoPageState extends State<EditarGastoPage> {
   final _formKey = GlobalKey<FormState>();
   final _categoriaController = TextEditingController();
   final _montoController = TextEditingController();
@@ -37,7 +39,14 @@ class _AgregarGastoPageState extends State<AgregarGastoPage> {
   
    }
 
-
+  @override 
+  void initState() {
+    super.initState();
+    _categoriaController.text = widget.gasto.categoria;
+    _montoController.text = widget.gasto.monto.toString();
+    _fechaController.text = widget.gasto.fecha;
+    _descripcionController.text = widget.gasto.descripcion;
+  }
 
   // destrucción de los controladores del form luego de su uso
   @override
@@ -53,26 +62,24 @@ class _AgregarGastoPageState extends State<AgregarGastoPage> {
   Future<void> _guardarGasto() async {
     if (_formKey.currentState!.validate()) {
       final categoriaIngresada = _categoriaController.text;
-      final montIngresado = double.tryParse(_montoController.text) ?? 0.0;
+      final montoIngresado = double.tryParse(_montoController.text) ?? 0.0;
       final fechaIngresada = _fechaController.text;
       final descripcionIngresada = _descripcionController.text;
 
       // Creación de objeto gasto para ingresarse a la bd
-      final gastoIngresado = Gasto(
+      final gastoActualizado = Gasto(
+        id: widget.gasto.id,
         categoria: categoriaIngresada,
-        monto: montIngresado,
+        monto: montoIngresado,
         fecha: fechaIngresada,
         descripcion: descripcionIngresada,
       );
 
-      await DatabaseHelper().insertarGastoDB(
-        gastoIngresado,
-      ); // adición de los datos a la bd
+      await DatabaseHelper().actualizarGastoDB(
+        gastoActualizado,
+      ); // actualización de los datos a la bd
 
-      WidgetsBinding.instance.addPostFrameCallback((_){
-          Navigator.pop(context);
-      });
-       // Regresa a la pantalla anterior
+      Navigator.pop(context); // Regresa a la pantalla anterior
     }
   }
 
@@ -97,7 +104,7 @@ class _AgregarGastoPageState extends State<AgregarGastoPage> {
         toolbarHeight: 0.10 * screenHeight,
         backgroundColor: Color.fromRGBO(232, 237, 234, 1),
         title: Text(
-          'Agregar Gasto',
+          'Editar Gasto',
           style: TextStyle(
             color: Color.fromRGBO(9, 48, 48, 1),
             fontWeight: FontWeight.bold,
